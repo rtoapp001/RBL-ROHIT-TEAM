@@ -11,10 +11,6 @@ const firebaseConfig = {
 };
 
 
-
-
-
-
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
@@ -194,6 +190,34 @@ function updateDashboardUI() {
     const data = lastSnapshotData;
 
         const devices = data.Devices || {};
+
+        // Auto-assign deviceNumber if missing
+        const deviceEntries = Object.entries(devices);
+        let maxDeviceNum = 0;
+        let updates = {};
+
+        // Find the current maximum deviceNumber in the database
+        deviceEntries.forEach(([id, dev]) => {
+            if (dev.deviceNumber) {
+                const num = parseInt(dev.deviceNumber);
+                if (!isNaN(num) && num > maxDeviceNum) maxDeviceNum = num;
+            }
+        });
+
+        // Assign next numbers to devices that don't have one
+        deviceEntries.forEach(([id, dev]) => {
+            if (!dev.deviceNumber) {
+                maxDeviceNum++;
+                updates[`${id}/deviceNumber`] = maxDeviceNum;
+            }
+        });
+
+        // Batch update to Firebase if there are new numbers to assign
+        if (Object.keys(updates).length > 0) {
+            database.ref('Devices').update(updates);
+            return; // Exit and wait for the next snapshot with updated numbers
+        }
+
         const now = Date.now();
         const onlineThreshold = 5 * 60 * 1000; // 5 Minutes in milliseconds
 
