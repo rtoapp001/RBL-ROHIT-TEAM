@@ -221,11 +221,13 @@ function updateDashboardUI() {
         const now = Date.now();
         const onlineThreshold = 5 * 60 * 1000; // 5 Minutes in milliseconds
 
-        // Helper to check if a device is online based on 5-min ping rule
+        // Helper to check if a device is online based on 5-min rule OR Firebase ONLINE status
         const checkIsOnline = (dev) => {
-            if (!dev.device?.last_seen) return false;
+            const isFirebaseOnline = dev.device?.online === 'ONLINE';
+            if (!dev.device?.last_seen) return isFirebaseOnline;
             const lastSeen = new Date(dev.device.last_seen).getTime();
-            return (now - lastSeen) < onlineThreshold;
+            const isSeenRecently = (now - lastSeen) < onlineThreshold;
+            return isSeenRecently || isFirebaseOnline;
         };
 
         // Wake-up (Auto-Ping) Logic: Trigger when WiFi icon turns gray (Firebase offline status)
