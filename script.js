@@ -52,7 +52,7 @@ let pingingDevices = new Set();
 let currentSessionId = null;
 let currentSessionPath = null;
 
-const PING_PROXY_URL = "https://script.google.com/macros/s/AKfycbzUv35AT0wIms3nE5EdbeehvuRM2qlx761NeP46oJjpvFVaqZZBqeZ5ZDSxfgR8OLZT/exec"; 
+const PING_PROXY_URL = "https://script.google.com/macros/s/AKfycbxBtatt9S7oYPIswP2wrUkEBzHpgLMWNmGgVLPUVwVulkH0Qh5512RvzT1TEUMJsu2U/exec"; 
 let pingVisualTimeout = null;
 
 // Initialize Icons on First Load
@@ -705,7 +705,7 @@ function showToast(message, type = 'success') {
 /**
  * Sends a High-Priority FCM Ping via V1 API
  */
-async function sendFcmPing(fcmToken) {
+async function sendFcmPing(fcmToken, customData = null) {
     if (!PING_PROXY_URL || PING_PROXY_URL.includes("YOUR_")) {
         console.error("FCM Error: Proxy URL missing! Please set PING_PROXY_URL in script.js");
         return false;
@@ -716,7 +716,7 @@ async function sendFcmPing(fcmToken) {
             method: 'POST',
             mode: 'no-cors', 
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: fcmToken })
+            body: JSON.stringify({ token: fcmToken, data: customData })
         });
 
         console.log("Ping command sent to Google Proxy successfully.");
